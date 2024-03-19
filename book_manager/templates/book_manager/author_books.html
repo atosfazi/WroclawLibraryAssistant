@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* Style dla paska menu */
+        .menu-bar {
+            background-color: #333; /* Tło paska menu */
+            overflow: hidden; /* Zapobiega przepełnieniu zawartości */
+        }
+
+        /* Style dla linków w pasku menu */
+        .menu-bar a {
+            float: left; /* Układanie linków poziomo */
+            display: block; /* Wyświetlanie linków jako bloków */
+            color: white; /* Kolor tekstu */
+            text-align: center; /* Centrowanie tekstu */
+            padding: 14px 16px; /* Odstępy wewnątrz linków */
+            text-decoration: none; /* Usunięcie podkreślenia z linków */
+        }
+
+        /* Style dla linków w pasku menu przy najechaniu myszką */
+        .menu-bar a:hover {
+            background-color: #ddd; /* Zmiana koloru tła przy najechaniu */
+            color: black; /* Zmiana koloru tekstu przy najechaniu */
+        }
+    .book-title {
+        color: #333; /* Ciemnoszary kolor tekstu */
+        text-decoration: none; /* Usunięcie podkreślenia */
+    }
+
+    .book-title:hover {
+        text-decoration: underline; /* Podkreślenie tylko przy najechaniu */
+    }
+
+    .more-info {
+        display: block; /* Wyświetlanie linka 'Więcej informacji' jako bloku, co spowoduje przejście do nowej linii */
+        margin-top: 10px; /* Odstęp od opisu */
+        text-decoration: underline; /* Podkreślenie tekstu */
+        color: #0000EE; /* Kolor hiperłącza */
+    }
+</style>
+    <title>Książki autora: {{ author }}</title>
+</head>
+<body>
+    <!-- Pasek menu -->
+    <div class="menu-bar">
+        <a href="/genres/">Gatunki</a>
+        <a href="/genres/authors/">Autorzy</a>
+        <a href="/genres/top/">Top</a>
+        <a href="#random">Losuj</a>
+    </div>
+
+    <h1>Książki autora: {{ author }}</h1>
+    <ul>
+        {% for book in books %}
+            <li>
+                <a href="javascript:void(0);" onclick="showDescription('description-{{ forloop.counter }}')" class="book-title"><em>{{ book.title }}</em></a> by {{ book.author }} (&#9733; {{ book.rating }})
+                <p id="description-{{ forloop.counter }}" style="display: none;">
+                    {{ book.description }}
+                    <a href="{{ book.book_url }}" class="more-info" target="_blank">Więcej informacji</a>
+                </p>
+            </li>
+        {% endfor %}
+    </ul>
+    <a href="/genres/authors/">Powrót do listy autorów</a>
+
+    <script>
+        function showDescription(id) {
+            var element = document.getElementById(id);
+            if (element.style.display === "none") {
+                element.style.display = "block";
+            } else {
+                element.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>

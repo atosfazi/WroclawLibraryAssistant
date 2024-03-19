@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Top książki</title>
+    <style>
+        .menu-bar, .genres-bar {
+            background-color: #333;
+            overflow: hidden;
+        }
+
+        .menu-bar a, .genres-bar a {
+            float: left;
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        .menu-bar a:hover, .genres-bar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        .book-details, .top-books{
+            margin-bottom: 20px;
+            list-style-type: decimal;
+        }
+
+        .top-books {
+            padding-left: 20px;
+        }
+
+        .book-title, .top-books a {
+            color: #333;
+            cursor: pointer;
+            text-decoration: none;
+
+        }
+
+        .book-title:hover, .top-books a:hover {
+            text-decoration: underline;
+        }
+
+        .more-info {
+            display: block;
+            margin-top: 10px;
+            text-decoration: underline;
+            color: #0000EE;
+        }
+        .book-title-italic {
+            font-style: italic;
+
+
+}
+    </style>
+</head>
+<body>
+    <div class="menu-bar">
+        <a href="/genres/">Gatunki</a>
+        <a href="/genres/authors/">Autorzy</a>
+        <a href="/genres/top/">Top</a>
+        <a href="#random">Losuj</a>
+    </div>
+
+    <h1>Top książki</h1>
+
+    <ul class="book-details">
+        {% for book in books %}
+            <li>
+                <a href="javascript:void(0);" onclick="showDescription('description-{{ forloop.counter }}')" class="book-title">
+                    <em>{{ book.title }}</em>
+                </a> by {{ book.author }} (&#9733; {{ book.rating }})
+                <p id="description-{{ forloop.counter }}" style="display: none;">
+                    {{ book.description }}
+                    <a href="{{ book.book_url }}" class="more-info" target="_blank">Więcej informacji</a>
+                </p>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <h2>Wybierz gatunek</h2>
+
+    <div class="genres-bar">
+        {% for genre in genres %}
+            <a href="javascript:filterBooksByGenre('{{ genre|escapejs }}')">{{ genre }}</a>
+        {% endfor %}
+    </div>
+
+    <div id="booksContainer"></div>
+
+
+
+<script type="text/javascript">
+    var booksData = {
+        {% for genre, books_in_genre in books_per_genres.items %}
+        "{{ genre|escapejs }}": [
+            {% for book in books_in_genre %}
+            {
+                "title": "{{ book.title|escapejs }}",
+                "author": "{{ book.author|escapejs }}",
+                "rating": "{{ book.rating }}",
+                "description": "{{ book.description|escapejs }}",
+                "book_url": "{{ book.book_url }}"
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ]{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    };
+
+function filterBooksByGenre(genre) {
+    var filteredBooks = booksData[genre] || [];
+    var booksContainer = document.getElementById('booksContainer');
+    booksContainer.innerHTML = '';
+
+    var booksList = document.createElement('ul'); // Tworzymy element listy
+    booksList.className = 'top-books'; // Dodajemy klasę CSS do listy, aby zastosować istniejące style
+
+    filteredBooks.forEach(function(book, index) {
+        var bookItem = document.createElement('li'); // Tworzymy element listy dla każdej książki
+        var bookDescriptionId = 'description-' + genre + '-' + index; // Unikalny identyfikator dla opisu książki
+
+        bookItem.innerHTML =
+        '<a href="javascript:void(0);" onclick="showDescription(\'' + bookDescriptionId + '\')" class="book-title book-title-italic">' +
+        book.title + '</a> by ' + book.author + ' (&#9733; ' + book.rating + ')' +
+        '<p id="' + bookDescriptionId + '" style="display: none;">' +
+        book.description +
+        '<a href="' + book.book_url + '" class="more-info" target="_blank">Więcej informacji</a></p>';
+
+        booksList.appendChild(bookItem); // Dodajemy książkę do listy
+    });
+
+    booksContainer.appendChild(booksList); // Dodajemy gotową listę książek do kontenera
+}
+    function showDescription(id) {
+    var element = document.getElementById(id);
+    if (element.style.display === "none") {
+        element.style.display = "block";
+    } else {
+        element.style.display = "none";
+    }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Przycisk i Licznik</title>
+</head>
+<body>
+    <h1>Liczba kliknięć: {{ counter.count }}</h1>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Kliknij mnie!</button>
+    </form>
+</body>
+</html>
