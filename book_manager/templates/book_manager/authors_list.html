@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Autorzy książek</title>
+    <style>
+        /* Style dla paska menu */
+        .menu-bar {
+            background-color: #333; /* Tło paska menu */
+            overflow: hidden; /* Zapobiega przepełnieniu zawartości */
+        }
+
+        /* Style dla linków w pasku menu */
+        .menu-bar a {
+            float: left; /* Układanie linków poziomo */
+            display: block; /* Wyświetlanie linków jako bloków */
+            color: white; /* Kolor tekstu */
+            text-align: center; /* Centrowanie tekstu */
+            padding: 14px 16px; /* Odstępy wewnątrz linków */
+            text-decoration: none; /* Usunięcie podkreślenia z linków */
+        }
+
+        /* Style dla linków w pasku menu przy najechaniu myszką */
+        .menu-bar a:hover {
+            background-color: #ddd; /* Zmiana koloru tła przy najechaniu */
+            color: black; /* Zmiana koloru tekstu przy najechaniu */
+        }
+    </style>
+</head>
+<body>
+    <!-- Pasek menu -->
+    <div class="menu-bar">
+        <a href="/genres/">Gatunki</a>
+        <a href="/genres/authors/">Autorzy</a>
+        <a href="/genres/top/">Top</a>
+        <a href="#random">Losuj</a>
+    </div>
+    <div class="alphabet-filter">
+    {% for char in initials %}
+        <a href="{% url 'authors_list' char %}">{{ char }}</a>
+    {% endfor %}
+</div>
+    <h1>Autorzy</h1>
+{% if selected_letter %}
+    <h2>Autorzy na literę: {{ selected_letter }}</h2>
+{% endif %}
+<ul>
+    {% for author in authors %}
+        <li><a href="{% url 'author_books' author %}">{{ author }}</a></li>
+    {% endfor %}
+</ul>
+</body>
+</html>
