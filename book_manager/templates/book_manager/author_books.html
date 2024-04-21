@@ -47,19 +47,22 @@
         <a href="/genres/">Gatunki</a>
         <a href="/genres/authors/">Autorzy</a>
         <a href="/genres/top/">Top</a>
-        <a href="#random">Losuj</a>
+        <a href="/genres/random/">Losuj</a>
     </div>
 
     <h1>Książki autora: {{ author }}</h1>
     <ul>
         {% for book in books %}
-            <li>
+        <li>
                 <a href="javascript:void(0);" onclick="showDescription('description-{{ forloop.counter }}')" class="book-title"><em>{{ book.title }}</em></a> by {{ book.author }} (&#9733; {{ book.rating }})
+                <button onclick="checkBookAvailability({{ book.id }}, {{ forloop.counter }})">Pokaż dostępność</button>
+                <span id="random-number-{{ forloop.counter }}" style="margin-left: 10px;"></span>
                 <p id="description-{{ forloop.counter }}" style="display: none;">
                     {{ book.description }}
                     <a href="{{ book.book_url }}" class="more-info" target="_blank">Więcej informacji</a>
                 </p>
-            </li>
+     </li>
+
         {% endfor %}
     </ul>
     <a href="/genres/authors/">Powrót do listy autorów</a>
@@ -73,6 +76,24 @@
                 element.style.display = "none";
             }
         }
+
+        function checkBookAvailability(bookId, counter) {
+            fetch('/genres/authors/?check_availability=1&book_id=' + bookId)
+            .then(response => response.json())
+            .then(data => {
+                var availabilityText = data.availability;
+                var displayElement = document.getElementById('random-number-' + counter);
+                if (availabilityText === 'Egzemplarz na półce') {
+                    displayElement.style.color = 'green';  // Zielony dla dostępności
+                } else {
+                    displayElement.style.color = 'darkgoldenrod'; // Ciemniejszy żółty, który jest dobrze widoczny
+                }
+                displayElement.innerText = 'Dostępność: ' + availabilityText;
+            })
+            .catch(error => {
+                console.error('Błąd:', error);
+            });
+            }
     </script>
 </body>
 </html>

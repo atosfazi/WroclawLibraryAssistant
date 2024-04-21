@@ -3,40 +3,31 @@
 <head>
     <title>Gatunki książek</title>
     <style>
-        /* Style dla paska menu */
         .menu-bar {
-            background-color: #333; /* Tło paska menu */
-            overflow: hidden; /* Zapobiega przepełnieniu zawartości */
+            background-color: #333;
+            overflow: hidden;
         }
-
-        /* Style dla linków w pasku menu */
         .menu-bar a {
-            float: left; /* Układanie linków poziomo */
-            display: block; /* Wyświetlanie linków jako bloków */
-            color: white; /* Kolor tekstu */
-            text-align: center; /* Centrowanie tekstu */
-            padding: 14px 16px; /* Odstępy wewnątrz linków */
-            text-decoration: none; /* Usunięcie podkreślenia z linków */
+            float: left;
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
         }
-
-        /* Style dla linków w pasku menu przy najechaniu myszką */
         .menu-bar a:hover {
-            background-color: #ddd; /* Zmiana koloru tła przy najechaniu */
-            color: black; /* Zmiana koloru tekstu przy najechaniu */
+            background-color: #ddd;
+            color: black;
         }
-
-        /* Style dla pozostałej części strony */
         a.book-title, a.more-info {
             color: #333;
             text-decoration: none;
             font-size: 20px;
             font-weight: bold;
         }
-
         a.book-title:hover, a.more-info:hover {
             text-decoration: underline;
         }
-
         .more-info {
             display: block;
             font-size: 16px;
@@ -47,19 +38,16 @@
     </style>
 </head>
 <body>
-    <!-- Pasek menu -->
     <div class="menu-bar">
         <a href="/genres/">Gatunki</a>
         <a href="/genres/authors/">Autorzy</a>
         <a href="/genres/top/">Top</a>
-        <a href="#random">Losuj</a>
+        <a href="/genres/random/">Losuj</a>
     </div>
     <h1>Gatunki książek</h1>
     <ul>
         {% for genre in genres %}
-            <li>
-                <a href="{% url 'genre_books' genre %}">{{ genre }}</a>
-            </li>
+            <li><a href="{% url 'genre_books' genre %}">{{ genre }}</a></li>
         {% endfor %}
     </ul>
 
@@ -68,26 +56,48 @@
         <ul>
             {% for book in books %}
                 <li>
-                    <a href="javascript:void(0);" onclick="showDescription('description-{{ forloop.counter }}')" class="book-title"><em>{{ book.title }}</em></a> by {{ book.author }} (&#9733; {{book.rating }})
+                    <a href="javascript:void(0);" onclick="showDescription('description-{{ forloop.counter }}')" class="book-title">
+                        <em>{{ book.title }}</em>
+                    </a> by {{ book.author }} (&#9733; {{book.rating }})
+                    <button onclick="checkBookAvailability({{ book.id }}, {{ forloop.counter }})">Pokaż dostępność</button>
+                    <span id="random-number-{{ forloop.counter }}" style="margin-left: 10px;"></span>
                     <p id="description-{{ forloop.counter }}" style="display: none;">
                         {{ book.description }}
-                        <!-- Link "Więcej informacji" umieszczony bezpośrednio pod opisem książki -->
                         <a href="{{ book.book_url }}" class="more-info" target="_blank">Więcej informacji</a>
                     </p>
                 </li>
             {% endfor %}
         </ul>
-
-        <script>
-            function showDescription(id) {
-                var element = document.getElementById(id);
-                if (element.style.display === "none") {
-                    element.style.display = "block";
-                } else {
-                    element.style.display = "none";
-                }
-            }
-        </script>
     {% endif %}
+
+    <script>
+        function showDescription(id) {
+            var element = document.getElementById(id);
+            if (element.style.display === "none") {
+                element.style.display = "block";
+            } else {
+                element.style.display = "none";
+            }
+        }
+
+        function checkBookAvailability(bookId, counter) {
+            fetch('/genres/?check_availability=1&book_id=' + bookId)
+                .then(response => response.json())
+                .then(data => {
+                    var availabilityText = data.availability;
+                    var displayElement = document.getElementById('random-number-' + counter);
+                    if (availabilityText === 'Egzemplarz na półce') {
+                        displayElement.style.color = 'green';  // Zielony dla dostępności
+                    } else {
+                        displayElement.style.color = 'darkgoldenrod'; // Ciemniejszy żółty, który jest dobrze widoczny
+                    }
+                    displayElement.innerText = 'Dostępność: ' + availabilityText;
+                })
+                .catch(error => {
+                    console.error('Błąd:', error);
+                });
+        }
+
+    </script>
 </body>
 </html>

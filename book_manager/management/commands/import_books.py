@@ -25,7 +25,9 @@ class Command(BaseCommand):
                 description=line['Description'].strip(),
                 rating=line['Rating'].strip(),
                 ratings_nb=line['RatingsNb'].strip(),
-                availability=bool(line['Availability'])
+                availability=bool(line['Availability']),
+                library_book_id=line['LibraryBookId'],
+                similar_books=line['SimilarBooks']
             )
 
         self.stdout.write(self.style.SUCCESS('Successfully imported books from JSON'))
