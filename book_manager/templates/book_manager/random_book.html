@@ -54,6 +54,30 @@
     <p><strong>Description:</strong> {{ random_book.description }}</p>
     <p><strong>Rating:</strong> {{ random_book.rating }} ({{ random_book.ratings_nb }} ratings)</p>
     <p><a href="{{ random_book.book_url }}" class="more-info" target="_blank">Więcej informacji</a></p>
+    <button onclick="checkBookAvailability({{ random_book.id }})">Check Availability</button>
+    <span id="availability-result"></span>
 
+    <script>
+    function checkBookAvailability(bookId) {
+        fetch(`/genres/authors/?check_availability=1&book_id=${bookId}`)
+        .then(response => response.json())
+        .then(data => {
+            var availabilityText = data.availability;
+            var displayElement = document.getElementById('availability-result');
+
+            if (availabilityText === 'Egzemplarz na półce') {
+                displayElement.style.color = 'green';
+            } else {
+                displayElement.style.color = 'darkgoldenrod';
+            }
+
+            displayElement.innerText = 'Dostępność: ' + availabilityText;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('availability-result').innerText = 'Error checking availability';
+        });
+    }
+    </script>
 </body>
 </html>

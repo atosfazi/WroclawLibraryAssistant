@@ -12,6 +12,8 @@ class Book(models.Model):
     ratings_nb = models.CharField(max_length=10)
     availability = models.BooleanField(default=True)
     similar_books = models.CharField(max_length=255, default='')
+    library_book_id = models.TextField()
+
 
     def __str__(self):
         return self.title

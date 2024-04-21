@@ -60,7 +60,7 @@
         <a href="/genres/">Gatunki</a>
         <a href="/genres/authors/">Autorzy</a>
         <a href="/genres/top/">Top</a>
-        <a href="#random">Losuj</a>
+        <a href="/genres/random/">Losuj</a>
     </div>
 
     <h1>Top książki</h1>
@@ -71,6 +71,8 @@
                 <a href="javascript:void(0);" onclick="showDescription('description-{{ forloop.counter }}')" class="book-title">
                     <em>{{ book.title }}</em>
                 </a> by {{ book.author }} (&#9733; {{ book.rating }})
+                    <button onclick="checkBookAvailability({{ book.id }}, {{ forloop.counter }})">Pokaż dostępność</button>
+                    <span id="random-number-{{ forloop.counter }}" style="margin-left: 10px;"></span>
                 <p id="description-{{ forloop.counter }}" style="display: none;">
                     {{ book.description }}
                     <a href="{{ book.book_url }}" class="more-info" target="_blank">Więcej informacji</a>
@@ -101,7 +103,8 @@
                 "author": "{{ book.author|escapejs }}",
                 "rating": "{{ book.rating }}",
                 "description": "{{ book.description|escapejs }}",
-                "book_url": "{{ book.book_url }}"
+                "book_url": "{{ book.book_url }},",
+                "id": "{{ book.id }}"
             }{% if not forloop.last %},{% endif %}
             {% endfor %}
         ]{% if not forloop.last %},{% endif %}
@@ -112,17 +115,19 @@ function filterBooksByGenre(genre) {
     var filteredBooks = booksData[genre] || [];
     var booksContainer = document.getElementById('booksContainer');
     booksContainer.innerHTML = '';
-
     var booksList = document.createElement('ul'); // Tworzymy element listy
     booksList.className = 'top-books'; // Dodajemy klasę CSS do listy, aby zastosować istniejące style
 
     filteredBooks.forEach(function(book, index) {
         var bookItem = document.createElement('li'); // Tworzymy element listy dla każdej książki
         var bookDescriptionId = 'description-' + genre + '-' + index; // Unikalny identyfikator dla opisu książki
-
+        var availabilitySpanId = index;
         bookItem.innerHTML =
         '<a href="javascript:void(0);" onclick="showDescription(\'' + bookDescriptionId + '\')" class="book-title book-title-italic">' +
         book.title + '</a> by ' + book.author + ' (&#9733; ' + book.rating + ')' +
+        '<button onclick="checkBookAvailabilityForGenre(' + book.id + ', \'' + availabilitySpanId + '\')">Pokaż dostępność</button>' +
+        '<span id="' + availabilitySpanId + '" style="margin-left: 10px;"></span>' +
+
         '<p id="' + bookDescriptionId + '" style="display: none;">' +
         book.description +
         '<a href="' + book.book_url + '" class="more-info" target="_blank">Więcej informacji</a></p>';
@@ -139,6 +144,42 @@ function filterBooksByGenre(genre) {
     } else {
         element.style.display = "none";
     }
+}
+    function checkBookAvailability(bookId, counter) {
+        fetch('/genres/?check_availability=1&book_id=' + bookId)
+            .then(response => response.json())
+            .then(data => {
+                var availabilityText = data.availability;
+                console.log('Dostępność:', availabilityText);
+                var displayElement = document.getElementById('random-number-' + counter);
+                if (availabilityText === 'Egzemplarz na półce') {
+                    displayElement.style.color = 'green';  // Zielony dla dostępności
+                } else {
+                    displayElement.style.color = 'darkgoldenrod'; // Ciemniejszy żółty, który jest dobrze widoczny
+                }
+                displayElement.innerText = 'Dostępność: ' + availabilityText;
+            })
+            .catch(error => {
+                console.error('Błąd:', error);
+            });
+    }
+    function checkBookAvailabilityForGenre(bookId, availabilitySpanId) {
+    fetch('/genres/?check_availability=1&book_id=' + bookId)
+    .then(response => response.json())
+    .then(data => {
+        var availabilityText = data.availability;
+        var displayElement = document.getElementById(availabilitySpanId);
+        displayElement.innerText = 'Dostępność: ' + availabilityText;
+         if (availabilityText === 'Egzemplarz na półce') {
+            displayElement.style.color = 'green';  // Zielony dla dostępności
+            } else {
+                displayElement.style.color = 'darkgoldenrod'; // Ciemniejszy żółty, który jest dobrze widoczny
+            }
+            displayElement.innerText = 'Dostępność: ' + availabilityText;
+    })
+    .catch(error => {
+        console.error('Błąd:', error);
+    });
 }
 </script>
 </body>
